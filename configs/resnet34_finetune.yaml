@@ -16,8 +16,8 @@ model:
 
 training:
   num_epochs: 30
-  optimizer: sgd    # sgd, adam, adamw
-  base_lr: 0.0001
+  optimizer: adamw    # sgd, adam, adamw
+  base_lr: 0.00001
   fc_lr_multiplier: 10
   weight_decay: 1e-4
   # Adam/AdamW
