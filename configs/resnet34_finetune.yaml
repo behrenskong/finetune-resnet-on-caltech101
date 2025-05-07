@@ -16,12 +16,17 @@ model:
 
 training:
   num_epochs: 30
+  optimizer: sgd    # sgd, adam, adamw
   base_lr: 0.0001
   fc_lr_multiplier: 10
   weight_decay: 1e-4
+  # Adam/AdamW
   beta1: 0.9    
   beta2: 0.999 
-  eps: 1e-8 
+  eps: 1e-8
+  # SGD
+  momentum: 0.9
+  nesterov: false
   scheduler: reduce_lr_on_plateau  # step, cosine, reduce_lr_on_plateau
   patience: 3
   factor: 0.1

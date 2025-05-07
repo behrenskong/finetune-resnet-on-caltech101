@@ -127,6 +127,34 @@ def get_scheduler(scheduler_name, optimizer, **kwargs):
     else:
         raise ValueError(f"不支持的 lr scheduler: {scheduler_name}")
 
+def get_optimizer(optimizer_name, params, **kwargs):
+    if optimizer_name.lower() == 'sgd':
+        return optim.SGD(
+            params,
+            lr=kwargs.get('lr', 0.0001),
+            momentum=kwargs.get('momentum', 0.9),
+            weight_decay=kwargs.get('weight_decay', 0.0001),
+            nesterov=kwargs.get('nesterov', False)
+        )
+    elif optimizer_name.lower() == 'adam':
+        return optim.Adam(
+            params,
+            lr=kwargs.get('lr', 0.001),
+            betas=(kwargs.get('beta1', 0.9), kwargs.get('beta2', 0.999)),
+            eps=kwargs.get('eps', 1e-8),
+            weight_decay=kwargs.get('weight_decay', 0.0001)
+        )
+    elif optimizer_name.lower() == 'adamw':
+        return optim.AdamW(
+            params,
+            lr=kwargs.get('lr', 0.001),
+            betas=(kwargs.get('beta1', 0.9), kwargs.get('beta2', 0.999)),
+            eps=kwargs.get('eps', 1e-8),
+            weight_decay=kwargs.get('weight_decay', 0.0001)
+        )
+    else:
+        raise ValueError(f"不支持的优化器: {optimizer_name}")
+
 def save_checkpoint(state, checkpoint_dir, filename='checkpoint.pth'):
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
@@ -156,9 +184,15 @@ def train_model(config, args):
     base_lr = float(training_config['base_lr'])
     fc_lr_multiplier = float(training_config['fc_lr_multiplier'])
     weight_decay = float(training_config['weight_decay'])
+    optimizer_name = training_config.get('optimizer', 'sgd') 
+    # SGD
+    momentum = float(training_config.get('momentum', 0.9))
+    nesterov = training_config.get('nesterov', False)
+    # Adam/AdamW
     beta1 = float(training_config.get('beta1', 0.9))
     beta2 = float(training_config.get('beta2', 0.999))
     eps = float(training_config.get('eps', 1e-8))
+
     scheduler_name = training_config['scheduler']
     patience = training_config['patience']
     factor = float(training_config['factor'])
@@ -183,8 +217,11 @@ def train_model(config, args):
     print(f"base_lr: {base_lr}")
     print(f"FC层学习率倍率: {fc_lr_multiplier}")
     print(f"weight_decay: {weight_decay}")
-    print(f"AdamW参数 - beta1: {beta1}, beta2: {beta2}, eps: {eps}")
-    print(f"Checkpoint保存模式: {'仅保存Best和Last Epoch' if save_best_only else f'每 {save_every} 个epoch保存一次'}")
+    if optimizer_name.lower() in ['adam', 'adamw']:
+        print(f"{optimizer_name}参数 - beta1: {beta1}, beta2: {beta2}, eps: {eps}")
+    elif optimizer_name.lower() == 'sgd':
+        print(f"SGD参数 - momentum: {momentum}, nesterov: {nesterov}")
+    print(f"Checkpoint保存模式: {'仅保存Best和Last' if save_best_only else f'每 {save_every} 个epoch保存一次'}")
 
     if args.gpu is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -221,10 +258,22 @@ def train_model(config, args):
     backbone_params = [p for n, p in model.named_parameters() if "fc" not in n]
     fc_params = [p for n, p in model.named_parameters() if "fc" in n]
     
-    optimizer = optim.AdamW([
+    optimizer_params = [
         {'params': backbone_params, 'lr': base_lr},
         {'params': fc_params, 'lr': base_lr * fc_lr_multiplier}
-    ], betas=(beta1, beta2), eps=eps, weight_decay=weight_decay)
+    ]
+    
+    optimizer_kwargs = {
+        'lr': base_lr,
+        'weight_decay': weight_decay,
+        'beta1': beta1,
+        'beta2': beta2,
+        'eps': eps,
+        'momentum': momentum,
+        'nesterov': nesterov
+    }
+    
+    optimizer = get_optimizer(optimizer_name, optimizer_params, **optimizer_kwargs)
     
     scheduler_kwargs = {
         'patience': patience,
