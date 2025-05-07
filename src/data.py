@@ -8,6 +8,7 @@ import torchvision
 import torchvision.transforms as transforms
 import cv2
 from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from sklearn.model_selection import train_test_split
 
 
@@ -70,7 +71,8 @@ def get_transforms():
     return train_transforms, val_transforms
 
 def create_dataloaders(data_dir='data/caltech-101/101_ObjectCategories', batch_size=32, 
-                        num_workers=8, seed=42, train_size=0.5, val_size=0.25, test_size=0.25):
+                        num_workers=8, seed=42, train_size=0.5, val_size=0.25, test_size=0.25,
+                        distributed=False):
     image_paths, labels, label2name = load_data(data_dir)
     
     train_paths, temp_paths, train_labels, temp_labels = train_test_split(
@@ -91,9 +93,26 @@ def create_dataloaders(data_dir='data/caltech-101/101_ObjectCategories', batch_s
     val_dataset = Caltech101Dataset(val_paths, val_labels, val_transforms)
     test_dataset = Caltech101Dataset(test_paths, test_labels, val_transforms)
     
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    if distributed:
+        train_sampler = DistributedSampler(train_dataset)
+        val_sampler = DistributedSampler(val_dataset, shuffle=False)
+        test_sampler = DistributedSampler(test_dataset, shuffle=False)
+        
+        train_loader = DataLoader(
+            train_dataset, batch_size=batch_size, sampler=train_sampler,
+            num_workers=num_workers, pin_memory=True
+        )
+        val_loader = DataLoader(
+            val_dataset, batch_size=batch_size, sampler=val_sampler,
+            num_workers=num_workers, pin_memory=True
+        )
+        test_loader = DataLoader(
+            test_dataset, batch_size=batch_size, sampler=test_sampler,
+            num_workers=num_workers, pin_memory=True
+        )
+    else:
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     
     return train_loader, val_loader, test_loader, label2name
