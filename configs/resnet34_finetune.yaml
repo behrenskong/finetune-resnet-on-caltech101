@@ -1,0 +1,33 @@
+# Finetune ResNet34 on Caltech-101
+
+data:
+  data_dir: data/caltech-101/101_ObjectCategories
+  train_size: 0.5
+  val_size: 0.25
+  test_size: 0.25
+  batch_size: 32
+  num_workers: 4
+  seed: 42
+
+model:
+  backbone: resnet34
+  pretrained: true # load pretrained ResNet weights
+  num_classes: 101  # FC分类头个数
+
+training:
+  num_epochs: 30
+  base_lr: 0.0001
+  fc_lr_multiplier: 10
+  weight_decay: 1e-4
+  momentum: 0.9
+  scheduler: reduce_lr_on_plateau  # step, cosine, reduce_lr_on_plateau
+  patience: 3
+  factor: 0.1
+  early_stopping: 10  # 0表示不使用早停
+
+experiment:
+  name: resnet34_finetune
+  checkpoint_dir: outputs/checkpoints
+  log_dir: outputs/logs
+  save_best_only: true # if save_best_only is True, then only save the last epoch checkpoint, and save the best ckp
+  save_every: 5  # if save_best_only is False, then save checkpoint per 5 epoch, and save the best ckp
