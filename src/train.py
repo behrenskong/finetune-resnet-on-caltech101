@@ -156,7 +156,9 @@ def train_model(config, args):
     base_lr = float(training_config['base_lr'])
     fc_lr_multiplier = float(training_config['fc_lr_multiplier'])
     weight_decay = float(training_config['weight_decay'])
-    momentum = float(training_config['momentum'])
+    beta1 = float(training_config.get('beta1', 0.9))
+    beta2 = float(training_config.get('beta2', 0.999))
+    eps = float(training_config.get('eps', 1e-8))
     scheduler_name = training_config['scheduler']
     patience = training_config['patience']
     factor = float(training_config['factor'])
@@ -177,10 +179,13 @@ def train_model(config, args):
     print(f"backbone: {backbone}")
     print(f"加载ResNet预训练参数: {'Yes' if pretrained else 'No'}")
     print(f"batch_size: {batch_size}")
+    print(f"优化器: AdamW")
     print(f"base_lr: {base_lr}")
     print(f"FC层学习率倍率: {fc_lr_multiplier}")
+    print(f"weight_decay: {weight_decay}")
+    print(f"AdamW参数 - beta1: {beta1}, beta2: {beta2}, eps: {eps}")
     print(f"Checkpoint保存模式: {'仅保存Best和Last Epoch' if save_best_only else f'每 {save_every} 个epoch保存一次'}")
-    
+
     if args.gpu is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -216,10 +221,10 @@ def train_model(config, args):
     backbone_params = [p for n, p in model.named_parameters() if "fc" not in n]
     fc_params = [p for n, p in model.named_parameters() if "fc" in n]
     
-    optimizer = optim.SGD([
+    optimizer = optim.AdamW([
         {'params': backbone_params, 'lr': base_lr},
         {'params': fc_params, 'lr': base_lr * fc_lr_multiplier}
-    ], momentum=momentum, weight_decay=weight_decay)
+    ], betas=(beta1, beta2), eps=eps, weight_decay=weight_decay)
     
     scheduler_kwargs = {
         'patience': patience,

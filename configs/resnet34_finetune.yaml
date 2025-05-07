@@ -5,7 +5,7 @@ data:
   train_size: 0.5
   val_size: 0.25
   test_size: 0.25
-  batch_size: 32
+  batch_size: 16
   num_workers: 4
   seed: 42
 
@@ -19,7 +19,9 @@ training:
   base_lr: 0.0001
   fc_lr_multiplier: 10
   weight_decay: 1e-4
-  momentum: 0.9
+  beta1: 0.9    
+  beta2: 0.999 
+  eps: 1e-8 
   scheduler: reduce_lr_on_plateau  # step, cosine, reduce_lr_on_plateau
   patience: 3
   factor: 0.1

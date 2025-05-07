@@ -17,13 +17,15 @@ model:
 training:
   num_epochs: 30
   base_lr: 0.0001
-  fc_lr_multiplier: 10
+  fc_lr_multiplier: 1
   weight_decay: 1e-4
-  momentum: 0.9
+  beta1: 0.9   
+  beta2: 0.999   
+  eps: 1e-8      
   scheduler: reduce_lr_on_plateau  # step, cosine, reduce_lr_on_plateau
-  patience: 3
+  patience: 5
   factor: 0.1
-  early_stopping: 10  # 0表示不使用早停
+  early_stopping: 15  # 0表示不使用早停
 
 experiment:
   name: resnet34_scratch
