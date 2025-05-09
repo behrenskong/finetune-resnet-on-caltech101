@@ -13,7 +13,6 @@ caltech101_finetune/
 │   ├── resnet34_finetune.yaml   # ResNet34微调配置
 │   └── resnet34_scratch.yaml    # ResNet34从零训练配置
 │
-<<<<<<< HEAD
 ├── models/                      # 模型目录
 │   └── model.py                 # 模型定义
 │
@@ -22,30 +21,17 @@ caltech101_finetune/
 │
 ├── utils                        # 通用工具目录
 │   └── logger.py                # TensorBoard日志工具
-=======
-├── src/                         # 源代码目录
-│   ├── model.py                 # 模型定义
-│   ├── data.py                  # 数据加载与预处理
-│   ├── logger.py                # TensorBoard日志工具
-│   ├── train.py                 # 训练主脚本
-│   └── test.py                  # 测试脚本
->>>>>>> f7f9787a2692ff13254e0a0624755bacd57832d4
 │
 ├── outputs/                     # 输出目录
 │   ├── logs/                    # TensorBoard日志
 │   ├── checkpoints/             # 模型权重
 │   └── test_reports/            # 测试报告
 │
-<<<<<<< HEAD
 ├── train.py                     # 训练主脚本
 ├── test.py                      # 测试脚本
 ├── train.sh                     # 训练启动脚本
 ├── test.sh                      # 测试启动脚本
 ├── requirements.txt             # 环境配置
-=======
-├── train.sh                     # 训练启动脚本
-├── test.sh                      # 测试启动脚本
->>>>>>> f7f9787a2692ff13254e0a0624755bacd57832d4
 └── README.md                    # 项目说明
 ```
 
