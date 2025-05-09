@@ -1,0 +1,12 @@
+# python=3.8
+# cuda=12.4
+# -i https://pypi.tuna.tsinghua.edu.cn/simple/
+numpy
+matplotlib
+pyyaml
+torch==2.0.0
+torchvision==0.15.1
+opencv-python
+protubuf==3.9.2
+tensorboard
+grpcio
