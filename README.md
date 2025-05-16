@@ -78,7 +78,7 @@ bash train.sh
 # single gpu training
 python train.py \
     --config configs/resnet34_finetune.yaml \
-    --experiment_name resnet34_finetune \
+    --experiment_name ResNet34_finetune \
     --gpu 0
 ```
 - 分布式训练(DDP)
@@ -121,7 +121,7 @@ bash test.sh
 ```
 
 ```bash
-python test.py \
+python test_ori.py \
     --config configs/resnet34_finetune.yaml \
     --model_path outputs/checkpoints/resnet34_finetune_distributed/checkpoint_best.pth \
     --experiment_name resnet34_finetune_distributed \

@@ -10,3 +10,4 @@ opencv-python
 protubuf==3.9.2
 tensorboard
 grpcio
+seaborn

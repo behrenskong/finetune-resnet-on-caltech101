@@ -20,7 +20,14 @@
 
 
 # single gpu training
+cd /SSD_DISK/users/rongyi/projects/finetune-resnet-on-caltech101/ &&
+conda activate resnet_finetune &&
 python train.py \
-    --config configs/resnet34_finetune.yaml \
-    --experiment_name resnet34_finetune \
-    --gpu 0
+    --config configs/resnet101_finetune.yaml \
+    --experiment_name resnet101_finetune \
+    --gpu 7
+
+python train.py \
+    --config configs/resnet18_scratch.yaml \
+    --experiment_name resnet18_scratch \
+    --gpu 3

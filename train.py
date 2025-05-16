@@ -381,6 +381,7 @@ def train_model(config, args):
     train_accs = []
     val_losses = []
     val_accs = []
+    best_train_acc = 0.0
     best_val_acc = 0.0
     best_epoch = 0
     patience_counter = 0
@@ -432,6 +433,7 @@ def train_model(config, args):
         
         is_best = val_acc > best_val_acc
         if is_best:
+            best_train_acc = train_acc
             best_val_acc = val_acc
             best_epoch = epoch
             patience_counter = 0
@@ -454,7 +456,7 @@ def train_model(config, args):
                     checkpoint_dir=checkpoint_dir,
                     filename='checkpoint_best.pth'
                 )
-                print(f"已保存最佳模型到 {os.path.join(checkpoint_dir, 'checkpoint_best.pth')}")
+                print(f"已保存最佳模型到 {os.path.join(checkpoint_dir, f'checkpoint_best_{experiment_name}.pth')}")
                 
             if save_best_only:
                 if epoch == num_epochs:
@@ -502,6 +504,7 @@ def train_model(config, args):
             'fc_lr_multiplier': fc_lr_multiplier,
         }
         metrics = {
+            'hparam/best_train_accuracy': best_train_acc,
             'hparam/best_val_accuracy': best_val_acc,
             'hparam/final_train_accuracy': train_accs[-1],
             'hparam/final_val_accuracy': val_accs[-1],
@@ -516,6 +519,7 @@ def train_model(config, args):
             logger.log_hyperparams(hparams, metrics)
             
             plt.figure(figsize=(12, 5))
+            plt.suptitle(f'{experiment_name} - Training Curves', fontsize=16)
             
             plt.subplot(1, 2, 1)
             plt.plot(train_losses, label='Train Loss')
@@ -531,7 +535,7 @@ def train_model(config, args):
             plt.xlabel('Epoch')
             plt.ylabel('Accuracy (%)')
             plt.legend()
-            plt.title('Accuracy Curves')
+            plt.title(f'Accuracy Curves')
             
             plt.tight_layout()
             plt.savefig(os.path.join(checkpoint_dir, f'{experiment_name}_curves.png'))
