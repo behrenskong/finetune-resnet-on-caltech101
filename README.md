@@ -37,7 +37,7 @@ caltech101_finetune/
 
 ## 环境要求
 
-todo
+pip install requirements.txt
 
 
 ## 数据集准备
